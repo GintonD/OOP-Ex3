@@ -19,6 +19,7 @@ public HashMap<Integer, HashMap<Integer,edge_data/*edge*/>> Edges;
 public HashMap<Integer, node_data/*vertex*/> Vertices ;  	
 private int size_edges;
 private static int MC = 0;
+//private GraphListener listener;
 
 /**
  * Constructor
@@ -370,4 +371,15 @@ try {
 		
 	} 
 }
+
+
+//public void addListener(GraphListener listener){
+//	this.listener = listener;
+//}
+//
+//public void updateListener(){
+//	if(listener != null)
+//		listener.graphUpdater();
+//}
+
 }

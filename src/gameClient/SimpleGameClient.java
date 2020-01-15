@@ -14,6 +14,7 @@ import Server.game_service;
 //import oop_dataStructure.oop_graph;
 import algorithms.*;
 import dataStructure.*;
+
 /**
  * This class represents a simple example for using the GameServer API:
  * the main file performs the following tasks:
@@ -42,7 +43,11 @@ public class SimpleGameClient {
 		
 		//OOP_DGraph gg = new OOP_DGraph();
 		DGraph gg = new DGraph();
+		MyGameGUI mg = new MyGameGUI();
 		gg.init(g);
+		mg.initGUI();
+		//mg.setVisible(true);
+		
 		
 		String info = game.toString();
 		
@@ -63,8 +68,11 @@ public class SimpleGameClient {
 		}
 		catch (JSONException e) {e.printStackTrace();}
 		game.startGame();
+		mg.initGUI();
+		//mg.setVisible(true);
 		// should be a Thread!!!
 		while(game.isRunning()) {
+
 			moveRobots(game, gg);
 		}
 		String results = game.toString();
@@ -77,7 +85,8 @@ public class SimpleGameClient {
 	 * @param gg
 	 * @param log
 	 */
-	private static void moveRobots(game_service game, graph gg) {
+	private static void moveRobots(game_service game, graph gg) 
+	{
 		List<String> log = game.move();
 		System.out.println(game.getRobots());
 		if(log!=null) {

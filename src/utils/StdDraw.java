@@ -35,6 +35,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
+import java.awt.MenuItem;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 
@@ -73,7 +74,12 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+
+import dataStructure.graph;
+import gameClient.MyGameGUI;
+import utils.StdDraw;
 
 /**
  *  The {@code StdDraw} class provides a basic capability for
@@ -480,6 +486,9 @@ import javax.swing.KeyStroke;
  */
 public final class StdDraw implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
 
+	static MyGameGUI g;
+	static boolean isPaint = false;
+
 	/**
 	 *  The color black.
 	 */
@@ -592,7 +601,10 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 
 	// boundary of drawing canvas, 0% border
 	// private static final double BORDER = 0.05;
-	private static final double BORDER = 0.00;
+	//change
+	//private static final double BORDER = 0.0;
+	private static final double BORDER = 0.05;
+
 	private static final double DEFAULT_XMIN = 0.0;
 	private static final double DEFAULT_XMAX = 1.0;
 	private static final double DEFAULT_YMIN = 0.0;
@@ -705,7 +717,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // closes all windows
 		// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);      // closes only current window
-		frame.setTitle("Standard Draw");
+		frame.setTitle("***-Robotics Game By Ginton & fucesi-***");
 		frame.setJMenuBar(createMenuBar());
 		frame.pack();
 		frame.requestFocusInWindow();
@@ -715,14 +727,26 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	// create the menu bar (changed to private)
 	private static JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
-		menuBar.add(menu);
-		JMenuItem menuItem1 = new JMenuItem(" Save...   ");
-		menuItem1.addActionListener(std);
-		menuItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menu.add(menuItem1);
+		JMenu Game = new JMenu("Game");
+		menuBar.add(Game);
+		JMenuItem manual = new JMenuItem("Manual game");
+		manual.addActionListener(std);
+		JMenuItem Auto = new JMenuItem("Auto game");
+		Auto.addActionListener(std);
+		Game.add(Auto);
+		Game.add(manual);
+		
+		
+		JMenu Settings = new JMenu("Settings");
+		menuBar.add(Settings);
+		JMenuItem kml = new JMenuItem("Save as Kml");
+		kml.addActionListener(std);
+		Settings.add(kml);
 		return menuBar;
+	}
+
+	public static void CreateMenu(){
+		JMenuBar menuBar = new JMenuBar();
 	}
 
 
@@ -1297,7 +1321,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	/*
     private static BufferedImage getImage(String filename) {
         if (filename == null) throw new IllegalArgumentException();
-
         // from a file or URL
         try {
             URL url = new URL(filename);
@@ -1307,7 +1330,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         catch (IOException e) {
             // ignore
         }
-
         // in case file is inside a .jar (classpath relative to StdDraw)
         try {
             URL url = StdDraw.class.getResource(filename);
@@ -1317,7 +1339,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         catch (IOException e) {
             // ignore
         }
-
         // in case file is inside a .jar (classpath relative to root of jar)
         try {
             URL url = StdDraw.class.getResource("/" + filename);
@@ -1649,18 +1670,107 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	}
 
 
+	public static void setGraphGUI(MyGameGUI gr){
+		g= gr;
+	}
+
+	public static void setIsPaint() {
+		isPaint=true;
+	}
+	public static boolean getIsPaint() {
+		return isPaint;
+	}
+
+	static Thread t;
+	public static void threadPlayManu() {
+		t = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				g.playManual();
+				t.interrupt();
+			}
+		});
+		t.start();
+	}
+	public static void threadPlayAuto() {
+		t = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				g.playAuto();
+				t.interrupt();
+			}
+		});
+		t.start();
+	}
+
+	
+	
 	/**
 	 * This method cannot be called directly.
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
-		chooser.setVisible(true);
-		String filename = chooser.getFile();
-		if (filename != null) {
-			StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
-		}
+	String str = e.getActionCommand();
+
+	if(str.equals("Manual game")) {
+		threadPlayManu();
 	}
+
+	if(str.equals("Auto game")) {
+		threadPlayAuto();
+
+	}
+	}
+	//		}
+	//
+	//		if(str.equals("Draw graph")) {
+	//			graph.paint();
+	//		}
+	//
+	//		if(str.equals("Shortest Path")) {
+	//			graph.clear();
+	//			graph.paint();
+	//			graph.shortestPath();
+	//		}
+	//		if(str.equals("Add node")) {
+	//			graph.clear();
+	//			graph.paint();
+	//			graph.add();
+	//		}
+	//		if(str.equals("Remove node")) {
+	//			graph.clear();
+	//			graph.paint();
+	//			graph.removeNode();
+	//		}
+	//		if(str.equals("Remove edge")) {
+	//			graph.clear();
+	//			graph.paint();
+	//			graph.removeEdge();
+	//		}
+	//		if(str.equals("Connect edge")) {
+	//			graph.clear();
+	//			graph.paint();
+	//			graph.Connect();
+	//		}
+	//
+	//		if(str.equals("Shortest Path Dist")) {
+	//			graph.clear();
+	//			graph.paint();
+	//			graph.shortestPathDist();
+	//		}
+	//
+	//		if(str.equals("Is Connceted")) {
+	//			graph.isConnected();
+	//		}
+	//
+	//		if(str.equals("TSP")) {
+	//			graph.clear();
+	//			graph.paint();
+	//			graph.TSP();
+	//		}
+	//	}
 
 
 	/***************************************************************************
@@ -1719,7 +1829,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	 */
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// this body is intentionally left empty
+		g.setPoint(StdDraw.userX(e.getX()), StdDraw.userY(e.getY()));
 	}
 
 	/**
@@ -1900,9 +2010,4 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		StdDraw.setPenColor(StdDraw.WHITE);
 		StdDraw.text(0.8, 0.8, "white text");
 	}
-
 }
-
-
-//Copyright © 2000–2017, Robert Sedgewick and Kevin Wayne. 
-//Last updated: Mon Aug 27 16:43:47 EDT 2018.

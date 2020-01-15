@@ -30,13 +30,13 @@ public class Range {
 		return _max-_min;
 	}
 	
-	public void set_max(double _max) {
+	private void set_max(double _max) {
 		this._max = _max;
 	}
 	public double get_min() {
 		return _min;
 	}
-	public void set_min(double _min) {
+	private void set_min(double _min) {
 		this._min = _min;
 	}
 	
