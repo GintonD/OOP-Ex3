@@ -1673,7 +1673,9 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	public static void setGraphGUI(MyGameGUI gr){
 		g= gr;
 	}
-
+	public static  MyGameGUI getGraph() { ///check it if static good!!
+		return g;
+}
 	public static void setIsPaint() {
 		isPaint=true;
 	}

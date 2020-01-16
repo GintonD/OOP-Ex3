@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,10 +34,11 @@ public class MyGameGUI implements ActionListener, Serializable
 {
 	private final double EPSILON = 0.0001;
 	private static DecimalFormat df2 = new DecimalFormat("#.###");
-	
+	game_service game;
 	ArrayList<Fruit> FruitsList;
 	ArrayList<Robot> RobotsList;
 	graph gr;
+	KML_Logger kml =new KML_Logger(this);
 	Graph_Algo GrAl = new Graph_Algo();
 	
 	double min_x=Integer.MAX_VALUE;
@@ -113,7 +115,7 @@ public class MyGameGUI implements ActionListener, Serializable
 			StdDraw.setPenColor(Color.blue);
 			StdDraw.filledCircle(p.x(), p.y(),0.00007);
 			StdDraw.text(p.x(),p.y()+0.00015, ""+ n.getKey());
-
+			
 			//edge
 			Collection<edge_data> edges = gr.getE(n.getKey());
 			for(edge_data e: edges) 
@@ -169,6 +171,7 @@ public class MyGameGUI implements ActionListener, Serializable
 			{
 				findFruitEdge(f);
 				Point3D p = f.getPos();
+				
 				if(f.getType() == 1)
 					StdDraw.picture(p.x(), p.y(), "apple2.jpg", 0.0010, 0.0008);
 				else 
@@ -269,7 +272,7 @@ public class MyGameGUI implements ActionListener, Serializable
 			int scenario_num = Integer.parseInt(num);
 			if(scenario_num>=0 && scenario_num<=23) 
 			{
-				game_service game = Game_Server.getServer(scenario_num);
+				 game = Game_Server.getServer(scenario_num);
 				String g = game.getGraph();
 				DGraph gg = new DGraph();
 				gg.init(g);
@@ -338,6 +341,7 @@ public class MyGameGUI implements ActionListener, Serializable
 				while(game.isRunning()) 
 				{
 					moveManualRobots(game);	
+					System.out.println("hegia");
 				}
 				
 				//return result
@@ -365,6 +369,21 @@ public class MyGameGUI implements ActionListener, Serializable
 	
 	private void moveManualRobots(game_service game) 
 	{
+		
+		try {
+			this.kml.KmlObjr();
+		} 
+		catch (ParseException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (InterruptedException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		List<String> log= game.move();
 		
 		if(log!= null) 
@@ -471,7 +490,7 @@ public class MyGameGUI implements ActionListener, Serializable
 			int scenario_num = Integer.parseInt(num);
 			if(scenario_num>=0 && scenario_num<=23) 
 			{
-				game_service game = Game_Server.getServer(scenario_num);
+				game = Game_Server.getServer(scenario_num);
 				String g = game.getGraph();
 				DGraph gg = new DGraph();
 				gg.init(g);
@@ -518,7 +537,28 @@ public class MyGameGUI implements ActionListener, Serializable
 				}
 				paint(game);
 				StdDraw.pause(50);
+				
+
+				
 				game.startGame();
+				
+				
+//				try {
+//					this.kml.KmlObjr();
+//				} 
+//				catch (ParseException e)
+//				{
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} 
+//				catch (InterruptedException e) 
+//				{
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+				
+				
+				
 				while(game.isRunning()) 
 					moveAutomaticallyRobots(game);	
 				
@@ -563,8 +603,8 @@ public class MyGameGUI implements ActionListener, Serializable
 		//	System.out.println("temp"+game.getFruits());
 			System.out.println(tempRob.getVertex().getKey() + " " + temp.getEdge().getSrc());
 			tempRob.setPath(a.shortestPath(tempRob.getVertex().getKey(), temp.getEdge().getSrc()));
-			tempRob.getPath().remove(0);
-			tempRob.getPath().add(gr.getNode(temp.getEdge().getDest()));
+			tempRob.getPath().remove(0); // remove your current place
+			tempRob.getPath().add(gr.getNode(temp.getEdge().getDest())); //** try to delete this line
 		//	System.out.println("value "+ temp.getValue());
 			for (Fruit f : FruitsList) {
 				if(f.getPos()==temp.getPos()) {
@@ -593,7 +633,6 @@ public class MyGameGUI implements ActionListener, Serializable
 	}
 
 
-
 	private void putRobot(game_service game, int check) {
 		for (Fruit f : FruitsList) {
 			if(!f.getVisited()) {
@@ -606,6 +645,20 @@ public class MyGameGUI implements ActionListener, Serializable
 				break;	
 			}
 		}
-
+	}
+	public game_service getGameService () {
+		return this.game;
+	}
+	
+	// get list of fruits
+	public ArrayList<Fruit> getFruitsList () 
+	{
+		return this.FruitsList;
+	}
+	
+	
+	public ArrayList<Robot> getRobotsList () 
+	{
+		return this.RobotsList;
 	}
 }
