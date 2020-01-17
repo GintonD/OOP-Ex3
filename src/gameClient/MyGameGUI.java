@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import Server.Game_Server;
@@ -38,7 +39,7 @@ public class MyGameGUI implements ActionListener, Serializable
 	ArrayList<Fruit> FruitsList;
 	ArrayList<Robot> RobotsList;
 	graph gr;
-	KML_Logger kml =new KML_Logger(this);
+	KML_Logger kml =new KML_Logger();
 	Graph_Algo GrAl = new Graph_Algo();
 	
 	double min_x=Integer.MAX_VALUE;
@@ -169,6 +170,16 @@ public class MyGameGUI implements ActionListener, Serializable
 		{
 			for(Fruit f : FruitsList) 
 			{
+				
+				try {
+					this.kml.SetFruit(f);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				findFruitEdge(f);
 				Point3D p = f.getPos();
 				
@@ -194,12 +205,39 @@ public class MyGameGUI implements ActionListener, Serializable
 		// draw the robots on the graph
 		if(!RobotsList.isEmpty())
 		{
+			
 			for(Robot r : RobotsList) 
 			{
+				
+				JSONObject object;
+				int movesTemp=0;
+				try {
+					object = new JSONObject(game.toString());
+					JSONObject cgame = (JSONObject) object.get("GameServer");
+					movesTemp = cgame.getInt("moves");
+				} 
+				catch (JSONException e1)
+				{
+					e1.printStackTrace();
+				}
+				
+				if (movesTemp%50==0)
+				{
+				try {
+					this.kml.SetRobot(r);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				}
 				Point3D p = r.getPos();
 				StdDraw.picture(p.x(), p.y(), "robot4.png", 0.0012, 0.0008);		
 			}
 		}
+		
 		StdDraw.show();
 	}
 	
@@ -341,9 +379,9 @@ public class MyGameGUI implements ActionListener, Serializable
 				while(game.isRunning()) 
 				{
 					moveManualRobots(game);	
-					System.out.println("hegia");
+					
 				}
-				
+				this.kml.CreatFile();
 				//return result
 				String res = game.toString();
 				JSONObject object = new JSONObject(res);
@@ -370,19 +408,7 @@ public class MyGameGUI implements ActionListener, Serializable
 	private void moveManualRobots(game_service game) 
 	{
 		
-		try {
-			this.kml.KmlObjr();
-		} 
-		catch (ParseException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		catch (InterruptedException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		
 		List<String> log= game.move();
 		
@@ -562,6 +588,8 @@ public class MyGameGUI implements ActionListener, Serializable
 				while(game.isRunning()) 
 					moveAutomaticallyRobots(game);	
 				
+				this.kml.CreatFile();
+				
 				//return result
 				//return result
 				String res = game.toString();
@@ -625,6 +653,8 @@ public class MyGameGUI implements ActionListener, Serializable
 					game.chooseNextEdge(roby.getId(), roby.getPath().get(0).getKey());
 					//paint(game);
 					game.move();
+					
+
 					roby.getPath().remove(0);
 				}
 			}	
