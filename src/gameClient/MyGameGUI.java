@@ -405,7 +405,7 @@ public class MyGameGUI implements ActionListener, Serializable
 	}
 
 	
-	private void moveManualRobots(game_service game) 
+	private void moveManualRobots(game_service game) throws InterruptedException 
 	{
 		
 
@@ -422,6 +422,7 @@ public class MyGameGUI implements ActionListener, Serializable
 				{
 					game.chooseNextEdge(r.getId(), destMove);
 					//System.out.println("r+ " + r.getId()+ " , dest "+ destMove);
+					Thread.sleep(350);
 					game.move();
 					//System.out.println("MOVE");
 					//System.out.println(game.getFruits());
@@ -613,7 +614,7 @@ public class MyGameGUI implements ActionListener, Serializable
 		}
 	}
 
-	private void moveAutomaticallyRobots(game_service game) 
+	private void moveAutomaticallyRobots(game_service game) throws InterruptedException 
 	{
 		Fruit temp = new Fruit();
 		Graph_Algo a = new Graph_Algo();
@@ -652,6 +653,7 @@ public class MyGameGUI implements ActionListener, Serializable
 					//System.out.println("path"+roby.getPath().get(0).getKey());
 					game.chooseNextEdge(roby.getId(), roby.getPath().get(0).getKey());
 					//paint(game);
+					Thread.sleep(350);
 					game.move();
 					
 
