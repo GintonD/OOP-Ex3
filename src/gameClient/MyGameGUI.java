@@ -139,7 +139,23 @@ public class MyGameGUI implements ActionListener, Serializable
 		StdDraw.picture(min_x+0.0003, max_y-0.0003, "supermario.png", 0.003, 0.001);
 		StdDraw.text(max_x-0.0001,min_y+0.0001,"00:" + game.timeToEnd()/1000);
 		
-		//System.out.println("00:" + game.timeToEnd()/1000);
+		//extract from json and draw the score
+		int score=0;
+		try 
+		{
+			JSONObject object;
+			object = new JSONObject(game.toString());
+			JSONObject cgame = (JSONObject) object.get("GameServer");
+			score = cgame.getInt("grade");
+		} 
+		catch (JSONException e1)
+		{
+			e1.printStackTrace();
+		}
+		
+		StdDraw.text(min_x-0.0001,min_y+0.0001,"Score:" + score);
+		
+		
 		
 		//get from the server again fruits.
 		Iterator<String> fruit_iter = game.getFruits().iterator();
@@ -208,31 +224,34 @@ public class MyGameGUI implements ActionListener, Serializable
 			
 			for(Robot r : RobotsList) 
 			{
+				//normalize the appering of the robot in the kml file..
+//				JSONObject object;
+//				int movesTemp=0;
+//				try {
+//					object = new JSONObject(game.toString());
+//					JSONObject cgame = (JSONObject) object.get("GameServer");
+//					movesTemp = cgame.getInt("moves");
+//				} 
+//				catch (JSONException e1)
+//				{
+//					e1.printStackTrace();
+//				}
 				
-				JSONObject object;
-				int movesTemp=0;
+//				if (movesTemp%50==0)
+//				{
 				try {
-					object = new JSONObject(game.toString());
-					JSONObject cgame = (JSONObject) object.get("GameServer");
-					movesTemp = cgame.getInt("moves");
+					this.kml.SetRobot(r); //add placemark of robot to the kml
 				} 
-				catch (JSONException e1)
-				{
-					e1.printStackTrace();
-				}
-				
-				if (movesTemp%50==0)
-				{
-				try {
-					this.kml.SetRobot(r);
-				} catch (ParseException e) {
+				catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				}
+				//}
+				
+				
 				Point3D p = r.getPos();
 				StdDraw.picture(p.x(), p.y(), "robot4.png", 0.0012, 0.0008);		
 			}
@@ -422,7 +441,7 @@ public class MyGameGUI implements ActionListener, Serializable
 				{
 					game.chooseNextEdge(r.getId(), destMove);
 					//System.out.println("r+ " + r.getId()+ " , dest "+ destMove);
-					Thread.sleep(350);
+					Thread.sleep(30); //this is thread!!
 					game.move();
 					//System.out.println("MOVE");
 					//System.out.println(game.getFruits());
@@ -464,25 +483,39 @@ public class MyGameGUI implements ActionListener, Serializable
 		{
 			Collection<edge_data> eg = gr.getE(RobotsList.get(robotChoosen).getVertex().getKey());
 			//check if the pressed  dest is one of the edges of the current node
-			Point3D dest = new Point3D(MouseX, MouseY);
+//			Point3D dest = new Point3D(MouseX, MouseY);
+			String DestList="";
+			ArrayList<Integer> destArray = new ArrayList<>();
 			for (edge_data e : eg) 
+			{	
+				destArray.add(e.getDest());
+				DestList=DestList+","+e.getDest();
+			}
+			
+			JFrame input = new JFrame();
+			String destStr = JOptionPane.showInputDialog(input, "Enter Destination vertex for Robot number:"+robotChoosen+".\nThe Optional Vertices are:\n"+DestList);
+			int ChoDest = Integer.parseInt(destStr);
+			if(destArray.contains(ChoDest)) 
 			{
-				Point3D temp = gr.getNode(e.getDest()).getLocation();
-				if(dest.distance2D(temp)<=0.0003)
-				{
-
-					System.out.println("FOUND EDGE");
+//				Point3D temp = gr.getNode(e.getDest()).getLocation();
+//				if(dest.distance2D(temp)<=0.0003)
+//				{
+//
+//					System.out.println("FOUND EDGE");
 					r= RobotsList.get(robotChoosen);
-					System.out.println("The dest that choose is:"+ e.getDest());
-					r.setEdge(e);
-					RobotsList.get(robotChoosen).setVertex(gr.getNode(e.getDest()));
+//					System.out.println("The dest that choose is:"+ e.getDest());
+					
+					r.setEdge(gr.getEdge(r.getVertex().getKey(), ChoDest));
+					RobotsList.get(robotChoosen).setVertex(gr.getNode(ChoDest));
 					robots= true;
 					this.MouseX = 0;
 					this.MouseY =0;
-					return e.getDest();
-				}
-			}
+//					return e.getDest();
+					return ChoDest;
+//				}
+			//}
 		  }
+		}
 		this.MouseX = 0;
 		this.MouseY =0;
 		return -1;
@@ -570,19 +603,7 @@ public class MyGameGUI implements ActionListener, Serializable
 				game.startGame();
 				
 				
-//				try {
-//					this.kml.KmlObjr();
-//				} 
-//				catch (ParseException e)
-//				{
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} 
-//				catch (InterruptedException e) 
-//				{
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
+
 				
 				
 				
@@ -653,7 +674,7 @@ public class MyGameGUI implements ActionListener, Serializable
 					//System.out.println("path"+roby.getPath().get(0).getKey());
 					game.chooseNextEdge(roby.getId(), roby.getPath().get(0).getKey());
 					//paint(game);
-					Thread.sleep(350);
+					Thread.sleep(30); //this is thread!!
 					game.move();
 					
 
