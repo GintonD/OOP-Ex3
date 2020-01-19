@@ -15,6 +15,15 @@ OOP- Ex3 is a Game. The main goal is to collect as much fruits you can "eat", yo
 
 <img src="https://github.com/GintonD/OOP-Ex3/blob/master/picture/kml%20picture.png?raw=true" >
 
+##      Class Diagram
+ 
+- DataStructure Diagram
+
+<img src="https://github.com/GintonD/OOP-Ex3/blob/master/picture/uml-datastructre.jpg?raw=true" >
+
+- ClientGame Diagram
+
+<img src="https://github.com/GintonD/OOP-Ex3/blob/master/picture/GameClient%20-%20uml.jpg?raw=true" >
 
 ##      Auto Mode
 
