@@ -139,6 +139,30 @@ public class Robot
 		// TODO Auto-generated method stub
 		return this.speed;
 	}
+	public void setPos(Point3D pD1) {
+		this.pos=pD1;
+		
+	}
+	public void setDest(int i) 
+	{
+		this.dest=i;
+		
+	}
+	public Integer getDest() 
+	{
+		// TODO Auto-generated method stub
+		return this.dest;
+	}
+	public void setSrc(int i) 
+	{
+		this.src=i;
+		
+	}
+	public Integer getSrc() 
+	{
+		// TODO Auto-generated method stub
+		return this.src;
+	}
 
 
 

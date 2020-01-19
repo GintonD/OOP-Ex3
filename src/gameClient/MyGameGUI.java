@@ -55,6 +55,7 @@ public class MyGameGUI implements ActionListener, Serializable
 	int moveRobot;
 	private int GameCounter=0;
 	static int robotChoosen=0;
+//************Constructors*****************************
 
 	public MyGameGUI() 
 	{
@@ -73,7 +74,9 @@ public class MyGameGUI implements ActionListener, Serializable
 		initGUI();
 	}
 
-
+/**
+ * init the Gui via StdDraw class
+ */
 	void initGUI()
 	{
 		StdDraw.enableDoubleBuffering();
@@ -106,7 +109,10 @@ public class MyGameGUI implements ActionListener, Serializable
 	
 	
 	
-	
+	/**
+	 * paint and update all detials in the gui from the server
+	 * @param game - data from the server
+	 */
 	public void paint(game_service game) 
 	{
 		StdDraw.clear();
@@ -155,18 +161,14 @@ public class MyGameGUI implements ActionListener, Serializable
 		{
 			e1.printStackTrace();
 		}
+		//draw score
 		StdDraw.text(min_x-0.0001,min_y+0.0001,"Score:" + score);
 		
+		//calculate and create fruits list
 		gm = new GameManager(game);
 		FruitsList  = gm.GetFruitList();
 
-		/*
-		for (Fruit f: FruitsList) 
-		{
-			findFruitEdge(f);
 
-		}
-		*/
 		
 		
 		
@@ -176,15 +178,21 @@ public class MyGameGUI implements ActionListener, Serializable
 			for(Fruit f : FruitsList) 
 			{
 				
-				try {
+				try 
+				{
 					this.kml.SetFruit(f);
-				} catch (ParseException e) {
+				} 
+				catch (ParseException e) 
+				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (InterruptedException e) {
+				} 
+				catch (InterruptedException e) 
+				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				
 				findFruitEdge(f);
 				Point3D p = f.getPos();
 				
