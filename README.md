@@ -1,6 +1,6 @@
 # OOP-Ex3- Mario Game 
 
-[![](https://imgur.com/PYbAdDu.png)](https://www.youtube.com/watch?v=7pIi0dVZF6s&feature=youtu.be")
+(https://www.youtube.com/watch?v=7pIi0dVZF6s&feature=youtu.be")
 
 #            Info
 
