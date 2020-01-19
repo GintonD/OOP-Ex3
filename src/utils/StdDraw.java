@@ -78,6 +78,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import dataStructure.graph;
+import gameClient.GameManager;
 import gameClient.MyGameGUI;
 import utils.StdDraw;
 
@@ -485,7 +486,8 @@ import utils.StdDraw;
  *  @author Kevin Wayne
  */
 public final class StdDraw implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
-
+	
+	static GameManager gm;
 	static MyGameGUI g;
 	static boolean isPaint = false;
 
@@ -1684,26 +1686,37 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	}
 
 	static Thread t;
-	public static void threadPlayManu() {
-		t = new Thread(new Runnable() {
+	public static void threadPlayManu() 
+	{
+		t = new Thread(new Runnable() 
+		{
 			
 			@Override
-			public void run() {
+			public void run() 
+			{
 				g.playManual();
 				t.interrupt();
 			}
+			
 		});
+		
 		t.start();
 	}
-	public static void threadPlayAuto() {
-		t = new Thread(new Runnable() {
+	
+	public static void threadPlayAuto() 
+	{
+		t = new Thread(new Runnable() 
+		{
 			
 			@Override
-			public void run() {
+			public void run() 
+			{
+				//game_Manager.playAuto(my_Gui);
 				g.playAuto();
 				t.interrupt();
 			}
 		});
+		
 		t.start();
 	}
 

@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,20 +39,21 @@ public class MyGameGUI implements ActionListener, Serializable
 	game_service game;
 	ArrayList<Fruit> FruitsList;
 	ArrayList<Robot> RobotsList;
+
 	graph gr;
 	KML_Logger kml =new KML_Logger();
 	Graph_Algo GrAl = new Graph_Algo();
-	
 	double min_x=Integer.MAX_VALUE;
 	double max_x=Integer.MIN_VALUE;
 	double min_y=Integer.MAX_VALUE;
 	double max_y=Integer.MIN_VALUE;
-	
+	GameManager gm;
 	double MouseX;
 	double MouseY;
 	
 	boolean robots = true;
 	int moveRobot;
+	private int GameCounter=0;
 	static int robotChoosen=0;
 
 	public MyGameGUI() 
@@ -59,6 +61,7 @@ public class MyGameGUI implements ActionListener, Serializable
 		this.gr = null;
 		this.FruitsList = new ArrayList<Fruit>();
 		this.RobotsList = new ArrayList<Robot>();
+		
 		initGUI();
 	}
 
@@ -152,34 +155,20 @@ public class MyGameGUI implements ActionListener, Serializable
 		{
 			e1.printStackTrace();
 		}
-		
 		StdDraw.text(min_x-0.0001,min_y+0.0001,"Score:" + score);
 		
-		
-		
-		//get from the server again fruits.
-		Iterator<String> fruit_iter = game.getFruits().iterator();
-		
-		//clear fruits collection if needed
-		if(FruitsList!= null)
+		gm = new GameManager(game);
+		FruitsList  = gm.GetFruitList();
+
+		/*
+		for (Fruit f: FruitsList) 
 		{
-			FruitsList.clear();
-		}
-		else
-		{
-			FruitsList = new ArrayList<Fruit>();
-		}
-		
-		
-		//set all fruits in their places
-		while(fruit_iter.hasNext())
-		{
-			String sFruit = fruit_iter.next();
-			Fruit f = new Fruit();
-			f.initFruit(sFruit);
-			FruitsList.add(f);
 			findFruitEdge(f);
+
 		}
+		*/
+		
+		
 		
 		// draw the fruit on the graph
 		if(!FruitsList.isEmpty())
@@ -209,14 +198,17 @@ public class MyGameGUI implements ActionListener, Serializable
 		}
 		
 		
-		//clear fruits collection if needed
-		if(RobotsList!= null)
+		//clear Robots collection if needed
+		if(RobotsList!= null) 
+		{	
 			RobotsList.clear();
-		
+			RobotsList = new ArrayList<Robot>(5+this.GameCounter);
+		}
 		else
-			RobotsList = new ArrayList<Robot>();
+			RobotsList = new ArrayList<Robot>(+this.GameCounter);
+			
 		
-		initRobots(game);
+		RobotsList = gm.initRobots(game,gr);	
 		
 		// draw the robots on the graph
 		if(!RobotsList.isEmpty())
@@ -225,20 +217,7 @@ public class MyGameGUI implements ActionListener, Serializable
 			for(Robot r : RobotsList) 
 			{
 				//normalize the appering of the robot in the kml file..
-//				JSONObject object;
-//				int movesTemp=0;
-//				try {
-//					object = new JSONObject(game.toString());
-//					JSONObject cgame = (JSONObject) object.get("GameServer");
-//					movesTemp = cgame.getInt("moves");
-//				} 
-//				catch (JSONException e1)
-//				{
-//					e1.printStackTrace();
-//				}
-				
-//				if (movesTemp%50==0)
-//				{
+
 				try {
 					this.kml.SetRobot(r); //add placemark of robot to the kml
 				} 
@@ -265,19 +244,14 @@ public class MyGameGUI implements ActionListener, Serializable
 	
 	
 	//init  robot
-	private void initRobots(game_service game)
+	/*private void initRobots(game_service game)
 	{
-		List<String> Jrobots = game.getRobots();
-		for (String jrobot : Jrobots) 
-		{
-			Robot CurRob = new Robot();
-			CurRob.UpdateGraph(gr);
-			CurRob.initRobot(jrobot);
-			RobotsList.add(CurRob);
-		}
+		
+		RobotsList = gm.initRobots(game,gr);
+
 	}
 	
-	
+	*/
 	// find the edge the fruit is on
 	private void findFruitEdge(Fruit f) 
 	{
@@ -314,16 +288,13 @@ public class MyGameGUI implements ActionListener, Serializable
 			}
 		}
 	}
-	@Override
-	public void actionPerformed(ActionEvent e) 
-	{
-		// TODO Auto-generated method stub
 
-	}
 
 	public void playManual()
 	{
 		try{
+
+			this.GameCounter++;
 			JFrame input = new JFrame();
 			String num = JOptionPane.showInputDialog(input, "Enter Scenario Number:\n(Between 0-23) ");
 			int scenario_num = Integer.parseInt(num);
@@ -370,14 +341,19 @@ public class MyGameGUI implements ActionListener, Serializable
 				}
 
 				//put the robots manually update the list and repaint using gui
-				JOptionPane.showMessageDialog(null, "Please add " + nomOfRobots + "Robots.\nClick on the certain Vertex for adding Robot");
+				JOptionPane.showMessageDialog(null, "Please add " + nomOfRobots + " Robots.\nClick on the certain Vertex for adding Robot");
 				while(counter < nomOfRobots)	
 				{
+					
+//					String locrob1 = JOptionPane.showInputDialog(input, "Enter Vertex Number to locate robot:\nOptional: ");
+//					int loc_rob1 = Integer.parseInt(locrob1);
+					
 					Point3D pos = new Point3D(MouseX, MouseY);
 					
 					Collection<node_data> nd = gr.getV();
 					for (node_data node_data1 : nd) 
 					{
+						
 						Point3D ndPos = node_data1.getLocation();
 						if(pos.distance2D(ndPos) <= EPSILON)
 						{
@@ -453,73 +429,167 @@ public class MyGameGUI implements ActionListener, Serializable
 		paint(game);
 	}
 	
+
+	
 	
 	private int nextVertexAuto(game_service game)
 	{
-		Robot r = null;
-		Point3D robPos = new Point3D(MouseX, MouseY);
-		if(robots)	
+	Robot r = null;
+	Point3D robPos = new Point3D(MouseX, MouseY);
+	if(robots)	
+	{
+		for (Robot TempRob : RobotsList) 
 		{
-			for (Robot TempRob : RobotsList) 
+			Point3D p2= TempRob.getPos();
+			//click on the robot?
+			if(p2.distance2D(robPos)<= EPSILON) 
 			{
-				Point3D p2= TempRob.getPos();
-				//click on the robot?
-				if(p2.distance2D(robPos)<= EPSILON) 
-				{
-					//search for edge for the robot
-					r= TempRob;
-					robotChoosen = TempRob.getId();
-					robots = false;
-					this.MouseX =0;
-					this.MouseY =0;
-					System.out.println("Robot number:"+TempRob.getId()+ " has been Choosed!");
-					break;
-				}
+				//search for edge for the robot
+				r= TempRob;
+				robotChoosen = TempRob.getId();
+				robots = false;
+				this.MouseX =0;
+				this.MouseY =0;
+				System.out.println("Robot number:"+TempRob.getId()+ " has been Choosed!");
+				break;
 			}
+		}
+	}
+	
+	//search next node for movement from the node the robot is placed on
+	else 
+	{
+		Collection<edge_data> eg = gr.getE(RobotsList.get(robotChoosen).getVertex().getKey());
+		//check if the pressed  dest is one of the edges of the current node
+//		Point3D dest = new Point3D(MouseX, MouseY);
+		String DestList="";
+		ArrayList<Integer> destArray = new ArrayList<>();
+		for (edge_data e : eg) 
+		{	
+			destArray.add(e.getDest());
+			DestList=DestList+","+e.getDest();
 		}
 		
-		//search next node for movement from the node the robot is placed on
-		else 
+		JFrame input = new JFrame();
+		String destStr = JOptionPane.showInputDialog(input, "Enter Destination vertex for Robot number:"+robotChoosen+".\nThe Optional Vertices are:\n"+DestList);
+		int ChoDest = Integer.parseInt(destStr);
+		if(destArray.contains(ChoDest)) 
 		{
-			Collection<edge_data> eg = gr.getE(RobotsList.get(robotChoosen).getVertex().getKey());
-			//check if the pressed  dest is one of the edges of the current node
-//			Point3D dest = new Point3D(MouseX, MouseY);
-			String DestList="";
-			ArrayList<Integer> destArray = new ArrayList<>();
-			for (edge_data e : eg) 
-			{	
-				destArray.add(e.getDest());
-				DestList=DestList+","+e.getDest();
-			}
-			
-			JFrame input = new JFrame();
-			String destStr = JOptionPane.showInputDialog(input, "Enter Destination vertex for Robot number:"+robotChoosen+".\nThe Optional Vertices are:\n"+DestList);
-			int ChoDest = Integer.parseInt(destStr);
-			if(destArray.contains(ChoDest)) 
-			{
-//				Point3D temp = gr.getNode(e.getDest()).getLocation();
-//				if(dest.distance2D(temp)<=0.0003)
-//				{
+//			Point3D temp = gr.getNode(e.getDest()).getLocation();
+//			if(dest.distance2D(temp)<=0.0003)
+//			{
 //
-//					System.out.println("FOUND EDGE");
-					r= RobotsList.get(robotChoosen);
-//					System.out.println("The dest that choose is:"+ e.getDest());
-					
-					r.setEdge(gr.getEdge(r.getVertex().getKey(), ChoDest));
-					RobotsList.get(robotChoosen).setVertex(gr.getNode(ChoDest));
-					robots= true;
-					this.MouseX = 0;
-					this.MouseY =0;
-//					return e.getDest();
-					return ChoDest;
-//				}
-			//}
-		  }
-		}
-		this.MouseX = 0;
-		this.MouseY =0;
-		return -1;
-		}
+//				System.out.println("FOUND EDGE");
+				r= RobotsList.get(robotChoosen);
+//				System.out.println("The dest that choose is:"+ e.getDest());
+				
+				r.setEdge(gr.getEdge(r.getVertex().getKey(), ChoDest));
+				RobotsList.get(robotChoosen).setVertex(gr.getNode(ChoDest));
+				robots= true;
+				this.MouseX = 0;
+				this.MouseY =0;
+//				return e.getDest();
+				return ChoDest;
+//			}
+		//}
+	  }
+	}
+	this.MouseX = 0;
+	this.MouseY =0;
+	return -1;
+}
+	
+	
+
+	
+	
+//	private int nextVertexAuto(game_service game)
+//	{
+//		String OptRob="";
+//		JFrame input1 = new JFrame();
+//		Robot r = null;
+////		Point3D robPos = new Point3D(MouseX, MouseY);
+////		if(robots)	
+////		{
+//			
+//
+//			
+//			
+//			for (Robot TempRob : RobotsList) 
+//			{
+//				OptRob=OptRob+" "+TempRob.getId();
+////				Point3D p2= TempRob.getPos();
+//				//click on the robot?
+////				if(p2.distance2D(robPos)<= EPSILON) 
+////				{
+//					//search for edge for the robot
+////					r= TempRob;
+////					robotChoosen = TempRob.getId();
+////					robots = false;
+////					this.MouseX =0;
+////					this.MouseY =0;
+////					System.out.println("Robot number:"+TempRob.getId()+ " has been Choosed!");
+////					break;
+////				}
+////			}
+//		}
+//			
+//		
+//			String numrob1 = JOptionPane.showInputDialog(input1, "Enter Robot Number:\nOptional: "+OptRob);
+//			int robotChoosen = Integer.parseInt(numrob1);
+//			if(RobotsList.get(robotChoosen)!=null)
+//		for (Robot TempRob : RobotsList) 
+//		{
+//		if(TempRob.getId()==robotChoosen)
+//		{
+//			robots=false;
+//			
+//			break;
+//		}
+//		}
+//		
+//		//search next node for movement from the node the robot is placed on
+//		if(!robots) 
+//		{
+//			Collection<edge_data> eg = gr.getE(RobotsList.get(robotChoosen).getVertex().getKey());
+//			//check if the pressed  dest is one of the edges of the current node
+////			Point3D dest = new Point3D(MouseX, MouseY);
+//			String DestList="";
+//			ArrayList<Integer> destArray = new ArrayList<>();
+//			for (edge_data e : eg) 
+//			{	
+//				destArray.add(e.getDest());
+//				DestList=DestList+","+e.getDest();
+//			}
+//			
+//			JFrame input = new JFrame();
+//			String destStr = JOptionPane.showInputDialog(input, "Enter Destination vertex for Robot number:"+robotChoosen+".\nThe Optional Vertices are:\n"+DestList);
+//			int ChoDest = Integer.parseInt(destStr);
+//			if(destArray.contains(ChoDest)) 
+//			{
+////				Point3D temp = gr.getNode(e.getDest()).getLocation();
+////				if(dest.distance2D(temp)<=0.0003)
+////				{
+////
+////					System.out.println("FOUND EDGE");
+//					r= RobotsList.get(robotChoosen);
+////					System.out.println("The dest that choose is:"+ e.getDest());
+//					
+//					RobotsList.get(robotChoosen).setEdge(gr.getEdge(r.getVertex().getKey(), ChoDest));
+//					RobotsList.get(robotChoosen).setVertex(gr.getNode(ChoDest));
+//					robots= true;
+//					this.MouseX = 0;
+//					this.MouseY =0;
+////					return e.getDest();
+//					return ChoDest;
+////				}
+//			//}
+//		  }
+//		}
+//		this.MouseX = 0;
+//		this.MouseY =0;
+//		return -1;
+//		}
 //	private  int nextNode(graph g, int src) 
 //	{
 //		int ans = -1;
@@ -545,6 +615,7 @@ public class MyGameGUI implements ActionListener, Serializable
 	{
 		try
 		{
+			this.GameCounter++;
 			JFrame input = new JFrame();
 			String num = JOptionPane.showInputDialog( input, "Enter Scenario Number:\n(Between 0-23) ");
 			int scenario_num = Integer.parseInt(num);
@@ -651,7 +722,7 @@ public class MyGameGUI implements ActionListener, Serializable
 			}
 			robotChoosen = tempRob.getId();
 		//	System.out.println("temp"+game.getFruits());
-			System.out.println(tempRob.getVertex().getKey() + " " + temp.getEdge().getSrc());
+		//	System.out.println(tempRob.getVertex().getKey() + " " + temp.getEdge().getSrc());
 			tempRob.setPath(a.shortestPath(tempRob.getVertex().getKey(), temp.getEdge().getSrc()));
 			tempRob.getPath().remove(0); // remove your current place
 			tempRob.getPath().add(gr.getNode(temp.getEdge().getDest())); //** try to delete this line
@@ -714,4 +785,14 @@ public class MyGameGUI implements ActionListener, Serializable
 	{
 		return this.RobotsList;
 	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		// TODO Auto-generated method stub
+
+	}
+	
+	
 }

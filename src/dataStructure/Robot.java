@@ -21,6 +21,7 @@ public class Robot
 	private node_data temp_vertex;
 	private List<node_data> temp_path;
 	
+	
 	public Robot(int id1,double val1, int sr,int dst,double spd,Point3D loc)
 	{
 		this.id = id1;
@@ -29,6 +30,7 @@ public class Robot
 		this.dest=dst;
 		this.speed=spd;
 		this.pos=loc;
+		
 	}
 	public Robot(int id1,double val1, int sr,int dst,Point3D loc)
 	{
@@ -38,9 +40,11 @@ public class Robot
 		this.dest=dst;
 		//.speed=spd;
 		this.pos=loc;
+		
 	}
 	public Robot() 
 	{
+		
 		// TODO Auto-generated constructor stub
 	}
 	public Robot(int counter, Point3D location, int i, node_data node1, graph gr) 
@@ -50,7 +54,7 @@ public class Robot
 		this.speed=i;
 		this.temp_vertex=node1;
 		this.temp_gr=gr;
-				
+			
 	}
 	
 
