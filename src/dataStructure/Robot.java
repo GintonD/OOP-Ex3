@@ -130,6 +130,16 @@ public class Robot
 		// TODO Auto-generated method stub
 		return this.temp_path;
 	}
+	public void setSpeed(int i) 
+	{
+		this.speed=i;
+		
+	}
+	public Double getSpeed() {
+		// TODO Auto-generated method stub
+		return this.speed;
+	}
+
 
 
 

@@ -2,6 +2,7 @@ package dataStructure;
 
 import org.json.JSONObject;
 
+import Server.game_service;
 import utils.Point3D;
 
 public class Fruit 
@@ -33,6 +34,10 @@ public class Fruit
 		this.pos=p;
 			
 	}
+
+
+
+
 
 	public Point3D getPos() 
 	{
@@ -93,6 +98,15 @@ public class Fruit
 		this.visited=b;
 		
 	}
+
+	public void SetPos(Point3D p1) {
+		this.pos=p1;
+		
+	}
+
+
+
+
 
 	
 
