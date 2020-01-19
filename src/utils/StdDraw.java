@@ -729,7 +729,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	// create the menu bar (changed to private)
 	private static JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
-		JMenu Game = new JMenu("Game");
+		JMenu Game = new JMenu("New  Game");
 		menuBar.add(Game);
 		JMenuItem manual = new JMenuItem("Manual game");
 		manual.addActionListener(std);
@@ -739,11 +739,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		Game.add(manual);
 		
 		
-		JMenu Settings = new JMenu("Settings");
-		menuBar.add(Settings);
-		JMenuItem kml = new JMenuItem("Save as Kml");
-		kml.addActionListener(std);
-		Settings.add(kml);
+		
 		return menuBar;
 	}
 

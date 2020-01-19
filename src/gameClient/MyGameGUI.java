@@ -41,7 +41,7 @@ public class MyGameGUI implements ActionListener, Serializable
 	ArrayList<Robot> RobotsList;
 
 	graph gr;
-	KML_Logger kml =new KML_Logger();
+	KML_Logger kml;
 	Graph_Algo GrAl = new Graph_Algo();
 	double min_x=Integer.MAX_VALUE;
 	double max_x=Integer.MIN_VALUE;
@@ -50,7 +50,7 @@ public class MyGameGUI implements ActionListener, Serializable
 	GameManager gm;
 	double MouseX;
 	double MouseY;
-	
+	Robot r12 = null;
 	boolean robots = true;
 	int moveRobot;
 	private int GameCounter=0;
@@ -232,7 +232,13 @@ public class MyGameGUI implements ActionListener, Serializable
 				
 				
 				Point3D p = r.getPos();
-				StdDraw.picture(p.x(), p.y(), "robot4.png", 0.0012, 0.0008);		
+				if (r.getId()==0) {
+				StdDraw.picture(p.x(), p.y(), "robot4.png", 0.0012, 0.0008);}
+				else if (r.getId()==1) {
+				StdDraw.picture(p.x(), p.y(), "BobSfog.png", 0.0012, 0.0008);	}
+				else {
+					StdDraw.picture(p.x(), p.y(), "robot3.jpg", 0.0012, 0.0008);	
+				}
 			}
 		}
 		
@@ -292,6 +298,7 @@ public class MyGameGUI implements ActionListener, Serializable
 
 	public void playManual()
 	{
+		kml = new KML_Logger();
 		try{
 
 			this.GameCounter++;
@@ -376,7 +383,7 @@ public class MyGameGUI implements ActionListener, Serializable
 					moveManualRobots(game);	
 					
 				}
-				this.kml.CreatFile();
+		
 				//return result
 				String res = game.toString();
 				JSONObject object = new JSONObject(res);
@@ -384,7 +391,13 @@ public class MyGameGUI implements ActionListener, Serializable
 				int points = cgame.getInt("grade");
 				int moves = cgame.getInt("moves");
 				
-				JOptionPane.showMessageDialog(null, "Your points: " + points +"\nYour move: " + moves);			
+				JOptionPane.showMessageDialog(null, "Your points: " + points +"\nYour move: " + moves);	
+				JFrame inputKML = new JFrame();
+				String numKML = JOptionPane.showInputDialog(inputKML, "Enter 1 for create KML ");
+				
+				int kml_num = Integer.parseInt(numKML);
+				if (kml_num==1)
+				this.kml.CreatFile();
 				}
 			//the scenario is not exist throw error
 			else
@@ -412,12 +425,12 @@ public class MyGameGUI implements ActionListener, Serializable
 			int destMove = nextVertexAuto(game);
 			if(destMove!= -1) 
 			{
-				Robot r = RobotsList.get(robotChoosen);
-				if(r!= null) 
+				//Robot r = RobotsList.get(robotChoosen);
+				if(r12!= null) //r
 				{
-					game.chooseNextEdge(r.getId(), destMove);
+					game.chooseNextEdge(r12.getId(), destMove); //r
 					//System.out.println("r+ " + r.getId()+ " , dest "+ destMove);
-					Thread.sleep(30); //this is thread!!
+					Thread.sleep(10); //this is thread!!
 					game.move();
 					//System.out.println("MOVE");
 					//System.out.println(game.getFruits());
@@ -434,18 +447,21 @@ public class MyGameGUI implements ActionListener, Serializable
 	
 	private int nextVertexAuto(game_service game)
 	{
-	Robot r = null;
+	
 	Point3D robPos = new Point3D(MouseX, MouseY);
+
+	
 	if(robots)	
 	{
 		for (Robot TempRob : RobotsList) 
 		{
 			Point3D p2= TempRob.getPos();
+			
 			//click on the robot?
 			if(p2.distance2D(robPos)<= EPSILON) 
 			{
 				//search for edge for the robot
-				r= TempRob;
+				r12= TempRob;
 				robotChoosen = TempRob.getId();
 				robots = false;
 				this.MouseX =0;
@@ -457,9 +473,11 @@ public class MyGameGUI implements ActionListener, Serializable
 	}
 	
 	//search next node for movement from the node the robot is placed on
-	else 
-	{
-		Collection<edge_data> eg = gr.getE(RobotsList.get(robotChoosen).getVertex().getKey());
+	else if (robots== false) 
+	{	
+
+
+		Collection<edge_data> eg = gr.getE(/*RobotsList.get(robotChoosen)*/r12.getVertex().getKey());
 		//check if the pressed  dest is one of the edges of the current node
 //		Point3D dest = new Point3D(MouseX, MouseY);
 		String DestList="";
@@ -471,7 +489,7 @@ public class MyGameGUI implements ActionListener, Serializable
 		}
 		
 		JFrame input = new JFrame();
-		String destStr = JOptionPane.showInputDialog(input, "Enter Destination vertex for Robot number:"+robotChoosen+".\nThe Optional Vertices are:\n"+DestList);
+		String destStr = JOptionPane.showInputDialog(input, "Enter Destination vertex for Robot number:"+robotChoosen+" \n DON'T PREES X OR CANCEL!.\nThe Optional Vertices are:\n"+DestList);
 		int ChoDest = Integer.parseInt(destStr);
 		if(destArray.contains(ChoDest)) 
 		{
@@ -480,11 +498,11 @@ public class MyGameGUI implements ActionListener, Serializable
 //			{
 //
 //				System.out.println("FOUND EDGE");
-				r= RobotsList.get(robotChoosen);
+				/*r= RobotsList.get(robotChoosen);*/
 //				System.out.println("The dest that choose is:"+ e.getDest());
 				
-				r.setEdge(gr.getEdge(r.getVertex().getKey(), ChoDest));
-				RobotsList.get(robotChoosen).setVertex(gr.getNode(ChoDest));
+				r12.setEdge(gr.getEdge(r12.getVertex().getKey(), ChoDest));
+				/*RobotsList.get(robotChoosen)*/r12.setVertex(gr.getNode(ChoDest));
 				robots= true;
 				this.MouseX = 0;
 				this.MouseY =0;
@@ -613,6 +631,7 @@ public class MyGameGUI implements ActionListener, Serializable
 
 	public void playAuto() 
 	{
+		kml = new KML_Logger();
 		try
 		{
 			this.GameCounter++;
@@ -681,7 +700,7 @@ public class MyGameGUI implements ActionListener, Serializable
 				while(game.isRunning()) 
 					moveAutomaticallyRobots(game);	
 				
-				this.kml.CreatFile();
+
 				
 				//return result
 				//return result
@@ -692,6 +711,12 @@ public class MyGameGUI implements ActionListener, Serializable
 				int moves = cgame.getInt("moves");
 				
 				JOptionPane.showMessageDialog(null, "Computer points: " + points +"\nComputer move: " + moves);	
+				JFrame inputKML = new JFrame();
+				String numKML = JOptionPane.showInputDialog(inputKML, "Enter 1 for create KML ");
+				
+				int kml_num = Integer.parseInt(numKML);
+				if (kml_num==1)
+				this.kml.CreatFile();
 			}
 
 			//the scenario is not exist throw error
@@ -745,7 +770,7 @@ public class MyGameGUI implements ActionListener, Serializable
 					//System.out.println("path"+roby.getPath().get(0).getKey());
 					game.chooseNextEdge(roby.getId(), roby.getPath().get(0).getKey());
 					//paint(game);
-					Thread.sleep(30); //this is thread!!
+					Thread.sleep(10); //this is thread!!
 					game.move();
 					
 
