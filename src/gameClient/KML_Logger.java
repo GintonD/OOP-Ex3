@@ -18,15 +18,19 @@ import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.TimeSpan;
 import utils.StdDraw;
-
+/**
+ * class used to construct KML file to save the track of the game
+ * @author Ginton & Meir
+ *
+ */
 public class KML_Logger 
 {
-	 // MyGameGUI myg;
 	  Kml k;
 	  Document doc;
 	  int i;
 	  int l;
-	
+	  
+//******CONSTRUCTOR*************************	
 	public KML_Logger() 
 	{
 		  k = new Kml ();
@@ -36,7 +40,13 @@ public class KML_Logger
 		  
 	}
 
-
+	
+	/**
+	 * Creat Placemark of the fruit and update the kml file
+	 * @param f
+	 * @throws ParseException
+	 * @throws InterruptedException
+	 */
 	public void SetFruit(Fruit f) throws ParseException, InterruptedException
 	{
 		Placemark placmark = doc.createAndAddPlacemark();
@@ -65,7 +75,12 @@ public class KML_Logger
 		
 	}
 
-
+	/**
+	 * Create Placemark of the robot and update the kml file
+	 * @param r
+	 * @throws ParseException
+	 * @throws InterruptedException
+	 */
 	public void SetRobot(Robot r) throws ParseException, InterruptedException
 	{
 		Placemark plmark = doc.createAndAddPlacemark();
@@ -95,7 +110,9 @@ public class KML_Logger
 		
 	}
 
-
+	/**
+	 * Generate the collected data to kml file.
+	 */
 	public void CreatFile() 
 	{
 		try {
@@ -111,7 +128,7 @@ public class KML_Logger
 	}
 	
 	
-
+//***********Helper Function*******************
  private String MillisToString(Long millis)
 {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
